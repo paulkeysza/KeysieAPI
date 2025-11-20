@@ -6,49 +6,45 @@ from openpyxl import Workbook
 from datetime import datetime
 
 app = FastAPI(
-    title="KeysieAPI JSON→Excel Converter",
-    version="1.0.0",
-    description="Convert raw JSON to Excel (Base64 output)."
+    title="Qiesi JSON → Excel API",
+    version="1.1.0",
+    description="""
+A lightweight, blazing-fast JSON → Excel converter API for demos, proof-of-concepts, and workflow automation.
+
+**Features**
+- Accepts raw JSON (object or array)
+- Converts to Excel (.xlsx)
+- Returns Base64 file inline
+- Perfect for RPA / NAC / integration demos
+"""
 )
 
 class ConvertRequest(BaseModel):
     jsonInput: str
 
-@app.get("/health")
+@app.get("/health", tags=["System"])
 def health():
     return {"status": "ok"}
 
-@app.post("/convert")
+@app.get("/info", tags=["System"])
+def info():
+    return {
+        "name": "Qiesi JSON → Excel API",
+        "version": "1.1.0",
+        "author": "Paul Keys",
+        "description": "High-speed JSON → Excel conversion API for demo and automation scenarios.",
+        "endpoints": {
+            "health": "/health",
+            "convert": "/convert",
+            "docs": "/docs",
+            "openapi": "/openapi.json"
+        }
+    }
+
+@app.get("/ping", tags=["System"])
+def ping():
+    return {"message": "pong", "api": "Qiesi JSON → Excel"}
+
+@app.post("/convert", tags=["Conversion"])
 def convert(req: ConvertRequest):
-    try:
-        data = json.loads(req.jsonInput)
-    except:
-        raise HTTPException(status_code=400, detail="ERR002: Invalid JSON format.")
-
-    if isinstance(data, dict):
-        data=[data]
-    if not isinstance(data, list):
-        raise HTTPException(status_code=400, detail="ERR003: JSON must be array or object.")
-
-    try:
-        wb=Workbook()
-        ws=wb.active
-        headers=set()
-        for item in data:
-            if isinstance(item, dict):
-                headers.update(item.keys())
-            else:
-                raise HTTPException(status_code=400, detail="ERR003: Items must be objects.")
-        headers=list(headers)
-        ws.append(headers)
-        for item in data:
-            ws.append([item.get(h) for h in headers])
-
-        bio=BytesIO()
-        wb.save(bio)
-        b64=base64.b64encode(bio.getvalue()).decode()
-    except:
-        raise HTTPException(status_code=500, detail="ERR004: Excel generation failed.")
-
-    ts=datetime.utcnow().strftime("%Y%m%d%H%M%S")
-    return {"fileName": f"KeysieAPI-{ts}.xlsx", "excelFile": b64}
+    ...
