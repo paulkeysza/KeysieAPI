@@ -7,17 +7,24 @@ from io import BytesIO, StringIO
 from openpyxl import Workbook
 from datetime import datetime
 
+
 app = FastAPI(
     title="Qiesi API Toolkit",
-    version="1.1.0",
+    version="1.1.2",
     description="""
 A lightweight API toolkit providing:
 
-• JSON → Excel conversion
-• Text → CSV conversion
+• JSON → Excel conversion  
+• Text → CSV conversion  
 
+Designed for Nintex NAC workflow integrations.
 """
 )
+
+
+# -----------------------------
+# Request Models
+# -----------------------------
 
 class ConvertRequest(BaseModel):
     jsonInput: str
@@ -40,13 +47,13 @@ def health():
 def info():
     return {
         "name": "Qiesi API Toolkit",
-        "version": "1.1.0",
+        "version": "1.1.2",
         "author": "Paul Keys",
-        "description": "My API toolkit",
+        "description": "API toolkit for Nintex workflow integrations",
         "endpoints": {
             "health": "/health",
-            "json_to_xlsx": "/JSON_to_XLSX",
-            "txt_to_csv": "/TXT_to_CSV",
+            "json_to_xlsx": "/JSON-to-XLSX",
+            "text_to_csv": "/TXT-to-CSV",
             "docs": "/docs",
             "openapi": "/openapi.json"
         }
@@ -55,7 +62,10 @@ def info():
 
 @app.get("/ping", tags=["System"])
 def ping():
-    return {"message": "pong", "api": "Qiesi JSON → Excel"}
+    return {
+        "message": "pong",
+        "api": "Qiesi Toolkit API"
+    }
 
 
 # -----------------------------
@@ -63,10 +73,11 @@ def ping():
 # -----------------------------
 
 @app.post(
-        "/JSON-to-XLSX", 
-        tags=["Conversion"],
-        summary="JSON-to-MS Excel",
-        description="Accepts JSON and returns it as a Base64 encoded Excel (.xlsx) file.")
+    "/JSON-to-XLSX",
+    tags=["Conversion"],
+    summary="JSON-to-MS Excel",
+    description="Accepts JSON and returns it as a Base64 encoded Excel (.xlsx) file."
+)
 def convert(req: ConvertRequest):
 
     try:
@@ -92,7 +103,7 @@ def convert(req: ConvertRequest):
 
         encoded = base64.b64encode(buffer.read()).decode()
 
-        filename = f"QiesiAPI-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.xlsx"
+        filename = f"QiesiAPI-JSONtoXLSX-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.xlsx"
 
         return {
             "fileName": filename,
@@ -104,7 +115,7 @@ def convert(req: ConvertRequest):
 
 
 # -----------------------------
-# Message → CSV Conversion
+# Text → CSV Conversion
 # Supports multiline input
 # -----------------------------
 
@@ -130,7 +141,7 @@ def message_to_csv(req: MessageCSVRequest):
 
         encoded = base64.b64encode(csv_bytes).decode()
 
-        filename = f"QiesiAPI-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.csv"
+        filename = f"QiesiAPI-TextToCSV-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.csv"
 
         return {
             "fileName": filename,
