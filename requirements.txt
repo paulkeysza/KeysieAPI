@@ -1,7 +1,4 @@
 fastapi
 uvicorn
-uvloop
-httptools
-websockets
-watchfiles
 openpyxl
+pytest
